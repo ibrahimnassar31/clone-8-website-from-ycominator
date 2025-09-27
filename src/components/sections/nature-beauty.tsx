@@ -1,5 +1,5 @@
 import Image from "next/image";
-
+import DirectionAwareButton from "../DirectionAwareButton";
 const NatureBeautySection = () => {
   return (
     <section className="py-[120px]">
@@ -17,8 +17,13 @@ const NatureBeautySection = () => {
           <div className="flex items-center lg:order-1">
             <h2 className="text-5xl font-normal leading-[1.2] text-foreground">
               Uchwycam piękno przyrody w słowach, obrazach i filmach
+              Od ponad 10 lat łączę pracę leśnika z pasją do fotografii i filmowania, tworząc materiały przyrodnicze i edukacyjne.
+
             </h2>
           </div>
+        </div>
+        <div className="mt-12 flex justify-center lg:justify-start">
+          <DirectionAwareButton text="Poznaj moją ofertę" className="bg-secondary-foreground hover:bg-secondary-foreground/90" />
         </div>
       </div>
     </section>
