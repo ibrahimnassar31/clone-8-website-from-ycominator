@@ -1,6 +1,11 @@
-import React from 'react';
+'use client'
+import React, { useRef, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+gsap.registerPlugin(ScrollTrigger);
 
 interface Product {
   href: string;
@@ -41,8 +46,13 @@ const products: Product[] = [
   },
 ];
 
-const ProductCard = ({ product }: { product: Product }) => (
-  <Link href={product.href} className="group block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-lg">
+
+const ProductCard = React.forwardRef<HTMLAnchorElement, { product: Product }>(({ product }, ref) => (
+  <Link
+    href={product.href}
+    ref={ref}
+    className="group block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-lg"
+  >
     <div className="bg-white p-4 transition-transform duration-300 ease-in-out group-hover:scale-105">
       <div className="relative aspect-[3/4] w-full">
         <Image
@@ -59,18 +69,74 @@ const ProductCard = ({ product }: { product: Product }) => (
       <p className="text-muted-foreground mt-1">{product.price}</p>
     </div>
   </Link>
-);
+));
+ProductCard.displayName = "ProductCard";
+
 
 const FooterGallery = () => {
+  const sectionRef = useRef<HTMLElement | null>(null);
+  const headingRef = useRef<HTMLHeadingElement | null>(null);
+  const linkRef = useRef<HTMLAnchorElement | null>(null);
+  const cardRefs = useRef<Array<HTMLAnchorElement | null>>([]);
+
+  useEffect(() => {
+    if (!sectionRef.current) return;
+
+    gsap.from(sectionRef.current, {
+      opacity: 0,
+      y: 80,
+      duration: 1.1,
+      ease: 'power3.out',
+      scrollTrigger: {
+        trigger: sectionRef.current,
+        start: 'top 85%',
+        once: true,
+      },
+    });
+
+    gsap.from([headingRef.current, linkRef.current], {
+      opacity: 0,
+      y: 60,
+      duration: 0.9,
+      stagger: 0.15,
+      ease: 'power3.out',
+      scrollTrigger: {
+        trigger: sectionRef.current,
+        start: 'top 80%',
+        once: true,
+      },
+    });
+
+    gsap.from(cardRefs.current, {
+      opacity: 0,
+      y: 80,
+      duration: 1.1,
+      stagger: 0.18,
+      ease: 'power3.out',
+      scrollTrigger: {
+        trigger: sectionRef.current,
+        start: 'top 75%',
+        once: true,
+      },
+    });
+  }, []);
+
+
+  cardRefs.current = Array(products.length).fill(null);
+
   return (
-    <section className="bg-background py-[120px]">
+    <section className="bg-background py-[120px]" ref={sectionRef}>
       <div className="max-w-[1200px] mx-auto px-10">
         <div className="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-16">
-          <h2 className="font-heading text-[48px] leading-[1.2] font-normal text-foreground">
+          <h2
+            className="font-heading text-[48px] leading-[1.2] font-normal text-foreground"
+            ref={headingRef}
+          >
             Cząstka lasu dla Ciebie
           </h2>
           <Link
             href="/sklep"
+            ref={linkRef}
             className="relative inline-block pb-1 text-sm font-medium uppercase tracking-wide text-foreground whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
           >
             SPRAWDŹ WSZYSTKIE PLAKATY
@@ -78,8 +144,12 @@ const FooterGallery = () => {
           </Link>
         </div>
         <div className="grid grid-cols-1 gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-4">
-          {products.map((product) => (
-            <ProductCard key={product.href} product={product} />
+          {products.map((product, i) => (
+            <ProductCard
+              key={product.href}
+              product={product}
+              ref={el => { cardRefs.current[i] = el; }}
+            />
           ))}
         </div>
       </div>

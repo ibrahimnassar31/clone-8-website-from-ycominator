@@ -1,31 +1,5 @@
-"use client";
 
-import * as React from "react";
-import Link from "next/link";
-import {
-  Bike,
-  Briefcase,
-  Camera,
-  Clapperboard,
-  Menu,
-  Megaphone,
-  Music,
-  Pause,
-  Play,
-  Trees,
-  UserCheck,
-} from "lucide-react";
-
-import {
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  NavigationMenuTrigger,
-  navigationMenuTriggerStyle,
-} from "@/components/ui/navigation-menu";
-
+'use client'
 const JakubWencekLogo = () => (
   <svg
     width="170"
@@ -38,7 +12,7 @@ const JakubWencekLogo = () => (
   </svg>
 );
 
-const ofertaCiebieItems = [
+const ofertaCiebieItems: { title: string; href: string; icon: JSX.Element }[] = [
   {
     title: "Warsztaty fotograficzne",
     href: "/dla-ciebie/warsztaty-fotograficzne",
@@ -66,7 +40,12 @@ const ofertaCiebieItems = [
   },
 ];
 
-const ofertaFirmItems = [
+const ofertaFirmItems: {
+  title: string;
+  href: string;
+  icon: JSX.Element;
+  features: string[];
+}[] = [
   {
     title: "Wydarzenia dla firm",
     href: "/dla-firm/wydarzenia-dla-firm",
@@ -99,24 +78,102 @@ const ofertaFirmItems = [
   },
 ];
 
+import * as React from "react";
+import type { JSX } from "react";
+import { useRef, useEffect } from "react";
+import gsap from "gsap";
+import Link from "next/link";
+import {
+  Bike,
+  Briefcase,
+  Camera,
+  Clapperboard,
+  Menu,
+  Megaphone,
+  Music,
+  Pause,
+  Play,
+  Trees,
+  UserCheck,
+} from "lucide-react";
+
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+  navigationMenuTriggerStyle,
+} from "@/components/ui/navigation-menu";
+
 export default function Navigation() {
   const [isPlaying, setIsPlaying] = React.useState(true);
-  
+  const navRef = useRef<HTMLElement>(null);
+  const logoRef = useRef<HTMLAnchorElement>(null);
+  const menuListRef = useRef<HTMLUListElement>(null);
+  const koncertBtnRef = useRef<HTMLDivElement>(null);
+
   const togglePlay = (e: React.MouseEvent) => {
     e.preventDefault();
     setIsPlaying(!isPlaying);
   };
 
+  useEffect(() => {
+    if (navRef.current) {
+      gsap.from(navRef.current, {
+        y: -60,
+        opacity: 0,
+        duration: 1,
+        ease: 'power3.out',
+      });
+    }
+    if (logoRef.current) {
+      logoRef.current.addEventListener('mouseenter', () => {
+        gsap.to(logoRef.current, { scale: 1.08, duration: 0.3, ease: 'power2.out' });
+      });
+      logoRef.current.addEventListener('mouseleave', () => {
+        gsap.to(logoRef.current, { scale: 1, duration: 0.3, ease: 'power2.out' });
+      });
+    }
+    if (menuListRef.current) {
+      gsap.from(menuListRef.current.children, {
+        opacity: 0,
+        y: 40,
+        stagger: 0.13,
+        duration: 0.7,
+        ease: 'power3.out',
+        delay: 0.3,
+      });
+      Array.from(menuListRef.current.children).forEach((el) => {
+        el.addEventListener('mouseenter', () => {
+          gsap.to(el, { scale: 1.07, backgroundColor: '#223d36', duration: 0.25, ease: 'power2.out' });
+        });
+        el.addEventListener('mouseleave', () => {
+          gsap.to(el, { scale: 1, backgroundColor: 'transparent', duration: 0.25, ease: 'power2.out' });
+        });
+      });
+    }
+    if (koncertBtnRef.current) {
+      gsap.to(koncertBtnRef.current, {
+        scale: 1.05,
+        repeat: -1,
+        yoyo: true,
+        duration: 1.2,
+        ease: 'power1.inOut',
+      });
+    }
+  }, []);
+
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-[#1A2F2A] text-white">
+    <header ref={navRef} className="fixed top-0 left-0 right-0 z-50 bg-[#1A2F2A] text-white">
       <nav className="mx-auto flex h-20 max-w-[1280px] items-center justify-between px-10">
-        <Link href="/" aria-label="Przejdź do strony głównej">
+        <Link href="/" aria-label="Przejdź do strony głównej" ref={logoRef}>
           <JakubWencekLogo />
         </Link>
-        
         <div className="hidden lg:flex lg:flex-1 lg:justify-center">
           <NavigationMenu>
-            <NavigationMenuList>
+            <NavigationMenuList ref={menuListRef}>
               <NavigationMenuItem>
                 <NavigationMenuTrigger className="bg-transparent text-sm font-medium uppercase tracking-wider hover:bg-white/10 focus:bg-white/10 data-[state=open]:bg-white/10">
                   OFERTA DLA CIEBIE
@@ -172,8 +229,7 @@ export default function Navigation() {
             </NavigationMenuList>
           </NavigationMenu>
         </div>
-
-        <div className="hidden lg:flex">
+        <div className="hidden lg:flex" ref={koncertBtnRef}>
           <a href="#" className="flex items-center gap-3 rounded-full bg-[#f1c40f] py-2 pl-4 pr-2 text-sm font-medium uppercase tracking-wider text-[#0F1F1C]">
             <Music className="h-4 w-4" />
             <span>LEŚNY KONCERT</span>
@@ -182,7 +238,6 @@ export default function Navigation() {
             </button>
           </a>
         </div>
-        
         <div className="lg:hidden">
           <button className="text-white" aria-label="Otwórz menu">
             <Menu className="h-6 w-6" />
